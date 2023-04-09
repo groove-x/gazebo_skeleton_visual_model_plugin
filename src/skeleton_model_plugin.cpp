@@ -72,6 +72,19 @@ bool SkeletonModelVisual::LoadSkin(sdf::ElementPtr _skinSdf, sdf::ElementPtr _ta
   this->skinFile = _skinSdf->Get<std::string>("filename");
   this->skinScale = _skinSdf->Get<double>("scale");
 
+  // Create unordered map of bones
+  // <bone name="Bone1" parent="body" link="bone1" />
+  // <bone name="Bone2" parent="bone1" link="bone2" />
+  // std::unordered_map<std::string, BoneLinks> boneLinks;
+  for (auto boneSdf = _skinSdf->GetElement("bone"); boneSdf; boneSdf = boneSdf->GetNextElement("bone"))
+  {
+    std::string boneName = boneSdf->Get<std::string>("name");
+    std::string boneParent = boneSdf->Get<std::string>("parent");
+    std::string boneLink = boneSdf->Get<std::string>("link");
+    this->boneLinks.insert(std::make_pair(boneName, BoneLinks(boneParent, boneLink)));
+    gzmsg << "Bone: " << boneName << " " << boneParent << " " << boneLink << std::endl;
+  }
+
   common::MeshManager::Instance()->Load(this->skinFile);
   if (!common::MeshManager::Instance()->HasMesh(this->skinFile))
   {
@@ -211,9 +224,20 @@ void SkeletonModelVisual::SetPose(const double _time)
     ignition::math::Matrix4d transform(ignition::math::Matrix4d::Identity);
     transform = bone->Transform();
 
-    // TODO: Copy relative transform between parent and child link
+    // Copy relative transform between parent and child link
     // from Gazebo physics model to skeleton
-    // and update transform accordingly
+    auto it = this->boneLinks.find(bone->GetName());
+    if (it != this->boneLinks.end())
+    {
+      const auto& linkNames = it->second;
+      auto parentLink = this->model->GetLink(linkNames.parent);
+      auto boneLink = this->model->GetLink(linkNames.child);
+      if (parentLink && boneLink)
+      {
+        auto t = boneLink->WorldPose() - parentLink->WorldPose();
+        transform = ignition::math::Matrix4d(t);
+      }
+    }
 
     physics::LinkPtr currentLink = this->model->GetChildLink(bone->GetName());
     ignition::math::Pose3d bonePose = transform.Pose();

@@ -8,6 +8,16 @@
 
 namespace gazebo
 {
+struct BoneLinks
+{
+  std::string parent;
+  std::string child;
+
+  BoneLinks(const std::string& _parent, const std::string& _child) : parent(_parent), child(_child)
+  {
+  }
+};
+
 class SkeletonModelVisual : public ModelPlugin
 {
 public:
@@ -49,6 +59,9 @@ private:
 
   /// \brief Publisher to send bone info.
   transport::PublisherPtr bonePosePub;
+
+  /// \brief Map of bone names to their links.
+  std::unordered_map<std::string, BoneLinks> boneLinks;
 
   bool LoadSkin(sdf::ElementPtr _skinSdf, sdf::ElementPtr _targetSdf);
 
