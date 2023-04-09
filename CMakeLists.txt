@@ -30,14 +30,14 @@ include_directories(
 )
 link_directories(${catkin_LIBRARY_DIRS})
 
-add_library(skeleton_visual_plugin SHARED src/skeleton_visual_plugin.cpp)
-target_link_libraries(skeleton_visual_plugin ${catkin_LIBRARIES})
+add_library(skeleton_model_plugin SHARED src/skeleton_model_plugin.cpp)
+target_link_libraries(skeleton_model_plugin ${catkin_LIBRARIES})
 
 #############
 ## Install ##
 #############
 
-install(TARGETS skeleton_visual_plugin
+install(TARGETS skeleton_model_plugin
         RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
         LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
         ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION})
