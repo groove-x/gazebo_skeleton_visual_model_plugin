@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <package format="2">
   <name>gazebo_skeleton_visual_model_plugin</name>
-  <version>0.0.0</version>
+  <version>0.1.0</version>
   <description>Model plugin package for gazebo to visualize skeleton</description>
 
   <maintainer email="dev@groove-x.com">GROOVE X, Inc</maintainer>
@@ -9,8 +9,6 @@
   <license>BSD</license>
 
   <url type="website">https://github.com/groove-x/gazebo_skeleton_visual_model_plugin</url>
-
-  <!-- <author email="jane.doe@example.com">Jane Doe</author> -->
 
   <buildtool_depend>catkin</buildtool_depend>
   <build_depend>gazebo_ros</build_depend>
