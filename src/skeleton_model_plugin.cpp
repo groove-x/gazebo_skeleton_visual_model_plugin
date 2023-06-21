@@ -188,8 +188,6 @@ bool SkeletonModelVisual::LoadSkin(sdf::ElementPtr _skinSdf, sdf::ElementPtr _ta
 
 void SkeletonModelVisual::LoadSkeletonLinks(const sdf::ElementPtr _skeletonSdf)
 {
-  std::ofstream sdfFile("/home/kohei/groovex/sim_ws/skeleton.sdf");
-  sdfFile << _skeletonSdf->ToString("");
   for (auto elem = _skeletonSdf->GetFirstElement(); elem; elem = elem->GetNextElement())
   {
     assert(elem->GetName() == "link");
