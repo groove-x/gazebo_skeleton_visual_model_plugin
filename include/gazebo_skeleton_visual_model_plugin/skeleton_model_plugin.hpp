@@ -45,6 +45,9 @@ private:
   /// \brief Scaling factor to apply to the skin.
   double skinScale;
 
+  /// \brief Whether to print the transforms. (for debugging)
+  bool printTransforms;
+
   /// \brief Pointer to the actor's mesh.
   const common::Mesh* mesh = nullptr;
 

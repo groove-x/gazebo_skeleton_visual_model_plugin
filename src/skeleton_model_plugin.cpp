@@ -71,6 +71,7 @@ bool SkeletonModelVisual::LoadSkin(sdf::ElementPtr _skinSdf, sdf::ElementPtr _ta
 {
   this->skinFile = _skinSdf->Get<std::string>("filename");
   this->skinScale = _skinSdf->Get<double>("scale");
+  this->printTransforms = _skinSdf->Get<bool>("printTransforms");
 
   // Create unordered map of bones
   // <bone name="Bone1" parent="body" link="bone1" />
@@ -204,7 +205,7 @@ void SkeletonModelVisual::PrintTransform(const std::string& _parentFrame, const 
   ignition::math::Pose3d pose;
   pose.Pos() = _transform.Translation();
   pose.Rot() = _transform.Rotation();
-  gzwarn << "Transform from " << _parentFrame << " to " << _childFrame << ": " << pose << std::endl;
+  gzmsg << "Transform from " << _parentFrame << " to " << _childFrame << ": " << pose << std::endl;
 }
 
 void SkeletonModelVisual::SetPose(const double _time)
@@ -214,6 +215,11 @@ void SkeletonModelVisual::SetPose(const double _time)
   msg.set_model_id(this->visualId);
 
   ignition::math::Pose3d mainLinkPose = this->model->WorldPose();
+
+  if (this->printTransforms)
+  {
+    gzmsg << "====" << std::endl;
+  }
 
   for (unsigned int i = 0; i < this->skeleton->GetNumNodes(); ++i)
   {
@@ -258,7 +264,10 @@ void SkeletonModelVisual::SetPose(const double _time)
     else
     {
       physics::LinkPtr parentLink = this->model->GetChildLink(parentBone->GetName());
-      // PrintTransform(parentLink->GetName(), currentLink->GetName(), transform);
+      if (this->printTransforms)
+      {
+        PrintTransform(parentLink->GetName(), currentLink->GetName(), transform);
+      }
       auto parentPose = parentLink->WorldPose();
       ignition::math::Matrix4d parentTrans(parentPose);
       transform = parentTrans * transform;
