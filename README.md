@@ -36,6 +36,8 @@ To apply the plugin, you will need:
 ```
 In this context, `name` refers to the name of the bone in the Collada model, `link` represents the link name in the Xacro model, and `parent` represents the parent link name in the Xacro model. This configuration correlates the physical simulation (collision) and visualization (skeleton).
 
+See the example model: `xacro/fix.xacro`.
+
 ## Support
 The Gazebo Skeleton Visual Model Plugin is tested and supported on Gazebo 11 with ROS noetic.
 
