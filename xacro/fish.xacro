@@ -1,0 +1,165 @@
+<?xml version="1.0" ?>
+<robot name="fish" xmlns:xacro="http://ros.org/wiki/xacro">
+  <link name="base_link">
+    <inertial>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <mass value="1e-3"/>
+      <inertia ixx="1e-3" ixy="0" ixz="0"
+        iyy="1e-3" iyz="0"
+        izz="1e-3"/>
+    </inertial>
+  </link>
+
+  <joint name="head_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="head_link" />
+    <origin xyz="0 0 0" rpy="1.5708 -1.5708 0"/>
+  </joint>
+
+  <gazebo reference='head_joint'>
+    <preserveFixedJoint>true</preserveFixedJoint>
+  </gazebo>
+
+  <!-- head -->
+  <link name="head_link">
+    <collision>
+      <origin xyz="0.02 0.08 0" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.18 0.16 0.13"/>
+      </geometry>
+    </collision>
+    <collision>
+      <origin xyz="0.02 0.21 0" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.1 0.1 0.08"/>
+      </geometry>
+    </collision>
+
+    <inertial>
+      <origin xyz="0.02 0.1 0" rpy="0 0 0"/>
+      <mass value="1.0"/>
+      <inertia
+        ixx="0.01" ixy="0.0" ixz="0.0"
+        iyy="0.01" iyz="0.0"
+        izz="0.01"/>
+    </inertial>
+  </link>
+  <gazebo reference="head_link">
+    <selfCollide>false</selfCollide>
+    <mu1>30.0</mu1>
+    <mu2>30.0</mu2>
+    <kp>1000000.0</kp>
+    <kd>100.0</kd>
+    <material>Gazebo/Red</material>
+    <selfCollide>false</selfCollide>
+  </gazebo>
+
+  <!-- ventral_body -->
+  <joint name="ventral_body_joint" type="revolute">
+    <parent link="head_link"/>
+    <child link="ventral_body_link" />
+    <origin xyz="0 0 0" rpy="-1.5708 0 -1.5708"/>
+    <axis xyz="0 0 1"/>
+    <limit effort="20" velocity="5" lower="-0.5" upper="0.5"/>
+    <dynamics damping="0.1"/>
+  </joint>
+
+  <link name="ventral_body_link">
+    <inertial>
+      <origin xyz="0.09 0 0.01" rpy="0 0 0"/>
+      <mass value="0.7"/>
+      <inertia
+        ixx="0.001" ixy="0.0" ixz="0.0"
+        iyy="0.001" iyz="0.0"
+        izz="0.001"/>
+    </inertial>
+
+    <collision>
+      <origin xyz="0.09 0 0.01" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.18 0.1 0.14"/>
+      </geometry>
+    </collision>
+  </link>
+  <gazebo reference="ventral_body_link">
+    <mu1>30.0</mu1>
+    <mu2>30.0</mu2>
+    <kp>1000000.0</kp>
+    <kd>100.0</kd>
+    <material>Gazebo/Green</material>
+    <selfCollide>false</selfCollide>
+  </gazebo>
+
+  <transmission name="ventral_body_trans">
+    <type>transmission_interface/SimpleTransmission</type>
+    <joint name="ventral_body_joint">
+      <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+    </joint>
+    <actuator name="ventral_body_motor">
+      <mechanicalReduction>1</mechanicalReduction>
+    </actuator>
+  </transmission>
+
+  <!-- caudal fin -->
+  <joint name="caudal_fin_joint" type="revolute">
+    <parent link="ventral_body_link"/>
+    <child link="caudal_fin_link" />
+    <origin xyz="0.183435 0 0" rpy="0 0 0"/>
+    <axis xyz="0 0 1"/>
+    <limit effort="10" velocity="5" lower="-0.5" upper="0.5"/>
+    <dynamics damping="0.1"/>
+  </joint>
+
+  <link name="caudal_fin_link">
+    <inertial>
+      <origin xyz="0.06 0 0" rpy="0 0 0"/>
+      <mass value="0.1"/>
+      <inertia
+        ixx="0.001" ixy="0.0" ixz="0.0"
+        iyy="0.001" iyz="0.0"
+        izz="0.001"/>
+    </inertial>
+
+    <collision>
+      <origin xyz="0.06 0 0" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.12 0.03 0.1"/>
+      </geometry>
+    </collision>
+  </link>
+  <gazebo reference="caudal_fin_link">
+    <mu1>30.0</mu1>
+    <mu2>30.0</mu2>
+    <kp>1000000.0</kp>
+    <kd>100.0</kd>
+    <material>Gazebo/Green</material>
+    <selfCollide>false</selfCollide>
+  </gazebo>
+
+  <transmission name="caudal_fin_trans">
+    <type>transmission_interface/SimpleTransmission</type>
+    <joint name="caudal_fin_joint">
+      <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+    </joint>
+    <actuator name="caudal_fin_motor">
+      <mechanicalReduction>1</mechanicalReduction>
+    </actuator>
+  </transmission>
+
+  <gazebo>
+    <plugin name="gazebo_ros_control" filename="libgazebo_ros_control.so">
+      <robotNamespace>/fish</robotNamespace>
+      <robotSimType>gazebo_ros_control/DefaultRobotHWSim</robotSimType>
+      <legacyModeNS>true</legacyModeNS>
+    </plugin>
+    <plugin name="model_visuals" filename="libskeleton_model_plugin.so">
+      <skin>
+        <filename>package://gazebo_skeleton_visual_model_plugin/meshes/fish.dae</filename>
+        <scale>1.0</scale>
+        <bone name="body" link="ventral_body_link" parent="head_link"/>
+        <bone name="fin" link="caudal_fin_link" parent="ventral_body_link"/>
+      </skin>
+    </plugin>
+  </gazebo>
+
+</robot>
