@@ -1,5 +1,7 @@
 # Gazebo Skeleton Visual Model Plugin
 
+https://github.com/groove-x/gazebo_skeleton_visual_model_plugin/assets/2378498/a9ca509b-3fc2-43cf-b3a8-869b244992ba
+
 ## Overview
 This repository contains a Gazebo visual plugin that allows for the visualization of a skeleton model in the Gazebo simulator, while the collision model utilizes primitive models such as spheres or cylinders instead of the skeleton. The plugin is provided as a ROS package.
 
