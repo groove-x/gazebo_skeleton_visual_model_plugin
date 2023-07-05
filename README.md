@@ -3,9 +3,12 @@
 https://github.com/groove-x/gazebo_skeleton_visual_model_plugin/assets/2378498/a9ca509b-3fc2-43cf-b3a8-869b244992ba
 
 ## Overview
-This repository contains a Gazebo visual plugin that allows for the visualization of a skeleton model in the Gazebo simulator, while the collision model utilizes primitive models such as spheres or cylinders instead of the skeleton. The plugin is provided as a ROS package.
+This repository contains a Gazebo visual plugin that allows for the visualization of a skeleton model in the Gazebo simulator, while the collision model utilizes primitive models such as spheres or cylinders instead of the skeleton.
 
-This project is based on the "Actor" plugin from Gazebo. You can find the original plugin [here](https://github.com/arpg/Gazebo/blob/master/gazebo/physics/Actor.hh).
+The plugin is provided as a ROS package.
+
+This project is based on the "Actor" plugin from Gazebo.
+You can find the original plugin [here](https://github.com/arpg/Gazebo/blob/master/gazebo/physics/Actor.hh).
 
 ## Installation
 To install the Gazebo Skeleton Visual Model Plugin, clone the repository into your catkin workspace and build the package using catkin.
@@ -19,9 +22,11 @@ catkin_make
 
 ## Usage
 To apply the plugin, you will need:
-- A model for the physical simulation (links and collisions) in Xacro format.
+- A physical simulation model (links and collisions) in Xacro format.
+  - This model should have the same number of links as the skeleton model, but consists of primitive shapes such as spheres or cylinders.
 - A skeleton model for visualization in Collada format (optional textures attached to it are also supported).
-- Extra settings to be made to the Xacro file as shown below.
+  - This visual model should have bones attached.
+- Extra settings to be made to the Xacro file as shown in the Example section.
 
 ## Example
 
@@ -35,10 +40,10 @@ See details in the example files:
 
 Joints, links and collision models are defined in Xacro format.
 
-`origin` in `joint` element is the original offset from the parent link to the child link when the joint is at zero position.
+`origin` in `joint` element represents the original offset from the parent link to the child link when the joint is in a zero position.
 
-This is obtained directly from design tools like blender,
-or can be shown by setting `<printTransforms>true</printTransforms>` element to plugin's `<skin>` element.
+This is obtained directly from design tools like Blender,
+or is shown in log messages by setting `<printTransforms>true</printTransforms>` element to plugin's `<skin>` element.
 
 ```xml
 <joint name="ventral_body_joint" type="revolute">
@@ -65,8 +70,7 @@ The skeleton model defined in Collada format is exported from design tools with 
 
 ### Plugin Setting in Xacro Format
 
-Plugin settings are used to map xacro joints to collada bones.
-
+Plugin settings are used to map xacro joints to Collada bones.
 
 ```xml
 <gazebo>
