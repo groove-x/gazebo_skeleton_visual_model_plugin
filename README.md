@@ -92,6 +92,18 @@ When the `printTransforms` element is set to `true`, the plugin prints the trans
 
 If you need the original offset from the parent link to the child link when the joint is at zero position, you need to remove all `bone` elements.
 
+### Run the example
+
+```bash
+cd ~/catkin_ws/src
+git clone https://github.com/groove-x/gazebo_skeleton_visual_model_plugin.git
+cd ..
+catkin_make
+roslaunch gazebo_skeleton_visual_model_plugin example.launch
+```
+
+Now, you can see a fish swimming.
+
 ## Support
 The Gazebo Skeleton Visual Model Plugin is tested and supported on Gazebo 11 with ROS noetic.
 
