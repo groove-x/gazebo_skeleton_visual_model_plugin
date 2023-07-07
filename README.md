@@ -1,9 +1,14 @@
 # Gazebo Skeleton Visual Model Plugin
 
-## Overview
-This repository contains a Gazebo visual plugin that allows for the visualization of a skeleton model in the Gazebo simulator, while the collision model utilizes primitive models such as spheres or cylinders instead of the skeleton. The plugin is provided as a ROS package.
+https://github.com/groove-x/gazebo_skeleton_visual_model_plugin/assets/2378498/a9ca509b-3fc2-43cf-b3a8-869b244992ba
 
-This project is based on the "Actor" plugin from Gazebo. You can find the original plugin [here](https://github.com/arpg/Gazebo/blob/master/gazebo/physics/Actor.hh).
+## Overview
+This repository contains a Gazebo visual plugin that allows for the visualization of a skeleton model in the Gazebo simulator, while the collision model utilizes primitive models such as spheres or cylinders instead of the skeleton.
+
+The plugin is provided as a ROS package.
+
+This project is based on the "Actor" plugin from Gazebo.
+You can find the original plugin [here](https://github.com/arpg/Gazebo/blob/master/gazebo/physics/Actor.hh).
 
 ## Installation
 To install the Gazebo Skeleton Visual Model Plugin, clone the repository into your catkin workspace and build the package using catkin.
@@ -17,9 +22,55 @@ catkin_make
 
 ## Usage
 To apply the plugin, you will need:
-- A collision model written in Xacro.
-- A skeleton model in Collada format (optional textures attached to it are also supported).
-- Extra settings to be made to the Xacro file as shown below.
+- A physical simulation model (links and collisions) in Xacro format.
+  - This model should have the same number of links as the skeleton model, but consists of primitive shapes such as spheres or cylinders.
+- A skeleton model for visualization in Collada format (optional textures attached to it are also supported).
+  - This visual model should have bones attached.
+- Extra settings to be made to the Xacro file as shown in the Example section.
+
+## Example
+
+See details in the example files:
+- `xacro/fish.xacro`
+- `meshes/fish.dae`
+- `config/example.yaml`
+- `launch/example.launch`
+
+### Joints, Links and Collisions in Xacro Format
+
+Joints, links and collision models are defined in Xacro format.
+
+`origin` in `joint` element represents the original offset from the parent link to the child link when the joint is in a zero position.
+
+This is obtained directly from design tools like Blender,
+or is shown in log messages by setting `<printTransforms>true</printTransforms>` element to plugin's `<skin>` element.
+
+```xml
+<joint name="ventral_body_joint" type="revolute">
+  <parent link="head_link"/>  <!-- NOTE: parent link of `body` bone -->
+  <child link="ventral_body_link" />  <!-- NOTE: child link of `body` bone -->
+  <origin xyz="0 0 0" rpy="-1.5708 0 -1.5708"/>
+  <axis xyz="0 0 1"/>
+  <limit effort="20" velocity="5" lower="-0.5" upper="0.5"/>
+  <dynamics damping="0.1"/>
+</joint>
+
+<link name="ventral_body_link">
+  <!-- inertial and collision description here -->
+</link>
+
+<transmission name="ventral_body_trans">
+  <!-- transmission description which is optional -->
+</transmission>
+```
+
+### Skeleton Model in Collada Format
+
+The skeleton model defined in Collada format is exported from design tools with bones attached to the mesh.
+
+### Plugin Setting in Xacro Format
+
+Plugin settings are used to map xacro joints to Collada bones.
 
 ```xml
 <gazebo>
@@ -27,14 +78,31 @@ To apply the plugin, you will need:
     <skin>
       <filename>/path/to/skeleton_visual.dae</filename>
       <scale>1.0</scale>
-      <bone name="Hand_L" link="left_hand_link" parent="left_arm_link"/>
-      <bone name="Hand_R" link="right_hand_link" parent="right_arm_link"/>
-      <bone name="Head" link="head_link" parent="body_link"/>
+      <!-- <printTransforms>true</printTransforms> -->
+      <bone name="body" link="ventral_body_link" parent="head_link"/>
+      <bone name="fin" link="caudal_fin_link" parent="ventral_body_link"/>
     </skin>
   </plugin>
 </gazebo>
 ```
+
 In this context, `name` refers to the name of the bone in the Collada model, `link` represents the link name in the Xacro model, and `parent` represents the parent link name in the Xacro model. This configuration correlates the physical simulation (collision) and visualization (skeleton).
+
+When the `printTransforms` element is set to `true`, the plugin prints the transform of each bone in the skeleton model to the terminal.
+
+If you need the original offset from the parent link to the child link when the joint is at zero position, you need to remove all `bone` elements.
+
+### Run the example
+
+```bash
+cd ~/catkin_ws/src
+git clone https://github.com/groove-x/gazebo_skeleton_visual_model_plugin.git
+cd ..
+catkin_make
+roslaunch gazebo_skeleton_visual_model_plugin example.launch
+```
+
+Now, you can see a fish swimming.
 
 ## Support
 The Gazebo Skeleton Visual Model Plugin is tested and supported on Gazebo 11 with ROS noetic.

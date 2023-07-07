@@ -1,0 +1,50 @@
+<launch>
+  <arg name="x_pos" default="0.0"/>
+  <arg name="y_pos" default="0.0"/>
+  <arg name="z_pos" default="0.0"/>
+  <arg name="roll" default="0.0"/>
+  <arg name="pitch" default="0.0"/>
+  <arg name="yaw" default="0.0"/>
+  <arg name="namespace" default="fish"/>
+
+  <arg name="gui" default="true"/>
+
+  <include file="$(find gazebo_ros)/launch/empty_world.launch">
+    <arg name="paused" value="false"/>
+    <arg name="use_sim_time" value="true"/>
+    <arg name="gui" value="$(arg gui)"/>
+    <arg name="headless" value="false"/>
+    <arg name="debug" value="false"/>
+    <arg name="verbose" value="true"/>
+  </include>
+
+  <group ns="$(arg namespace)">
+    <param name="tf_prefix" value="$(arg namespace)" />
+    <!-- Spawn the robot into Gazebo with the turtlebot description -->
+    <param name="robot_description"
+          command="$(find xacro)/xacro
+                   $(find gazebo_skeleton_visual_model_plugin)/xacro/fish.xacro
+                   namespace:=$(arg namespace)/" />
+    <node pkg="gazebo_ros" type="spawn_model" name="spawn_model" output="screen"
+          args="-urdf -param robot_description -model $(arg namespace) -robot_namespace $(arg namespace)
+                -x $(arg x_pos)
+                -y $(arg y_pos)
+                -z $(arg z_pos)
+                -R $(arg roll)
+                -P $(arg pitch)
+                -Y $(arg yaw)" />
+    <node pkg="robot_state_publisher" type="robot_state_publisher" name="robot_state_publisher" output="screen" />
+  </group>
+
+  <!-- controllers -->
+  <rosparam file="$(find gazebo_skeleton_visual_model_plugin)/config/example.yaml" command="load"/>
+  <node name="controller_spawner" pkg="controller_manager" type="spawner" respawn="false"
+    output="screen" ns="/$(arg namespace)" args="
+      joint_state_controller
+
+      ventral_body_position_controller
+      caudal_fin_position_controller
+      "/>
+
+  <node name="example_controller" pkg="gazebo_skeleton_visual_model_plugin" type="example.py" />
+</launch>

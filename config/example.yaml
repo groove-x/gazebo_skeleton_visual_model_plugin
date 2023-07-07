@@ -1,0 +1,14 @@
+fish:      
+  # Publish all joint states
+  joint_state_controller:
+    type: joint_state_controller/JointStateController
+    publish_rate: 50  
+
+  ventral_body_position_controller:
+    type: effort_controllers/JointPositionController
+    joint: ventral_body_joint
+    pid: {p: 10.0, i: 5.0, d: 0.0, i_clamp_min: -1.0, i_clamp_max: 1.0, antiwindup: true}
+  caudal_fin_position_controller:
+    type: effort_controllers/JointPositionController
+    joint: caudal_fin_joint
+    pid: {p: 10.0, i: 5.0, d: 0.0, i_clamp_min: -1.0, i_clamp_max: 1.0, antiwindup: true}
