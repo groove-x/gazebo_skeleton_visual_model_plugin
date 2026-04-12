@@ -108,6 +108,7 @@ bool SkeletonModelVisual::LoadSkin(sdf::ElementPtr _skinSdf, sdf::ElementPtr _ta
   linkSdf->GetAttribute("name")->Set(modelName + "_pose");
   linkSdf->GetElement("gravity")->Set(false);
   linkSdf->GetElement("self_collide")->Set(false);
+  this->AddSphereInertia(linkSdf, ignition::math::Pose3d::Zero, 1e-3, 0.01);
 
   std::string modelLinkName = modelName + "::" + modelName + "_pose";
   this->visualName = modelLinkName + "::" + modelName + "_visual";
@@ -135,9 +136,8 @@ bool SkeletonModelVisual::LoadSkin(sdf::ElementPtr _skinSdf, sdf::ElementPtr _ta
 
     linkSdf->GetElement("pose")->Set(pose);
 
-    // FIXME hardcoded inertia of a sphere with mass 1.0 and radius 0.01
-    // Do we even need inertial info in an actor?
-    // this->AddSphereInertia(linkSdf, ignition::math::Pose3d::Zero, 1.0, 0.01);
+    // Set minimal inertia to prevent Gazebo's default 1 kg mass per link
+    this->AddSphereInertia(linkSdf, ignition::math::Pose3d::Zero, 1e-3, 0.01);
 
     // FIXME hardcoded visual to red sphere with radius 0.02
     if (bone->IsRootNode())
