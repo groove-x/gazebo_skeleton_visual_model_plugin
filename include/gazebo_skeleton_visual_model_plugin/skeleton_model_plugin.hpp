@@ -63,6 +63,17 @@ private:
   /// \brief Publisher to send bone info.
   transport::PublisherPtr bonePosePub;
 
+  /// \brief Minimum sim time between two pose publishes. The update hook runs
+  /// every physics step, which is 1000 Hz at the usual max_step_size of 1 ms,
+  /// and no renderer needs the skin that often: a client deforming every bound
+  /// mesh per message costs whole cores, and the publisher queue (10) drops
+  /// most of the stream anyway. Set from <update_rate> in the plugin SDF,
+  /// default 60 Hz. Zero or negative means every step, the old behaviour.
+  common::Time posePeriod;
+
+  /// \brief Sim time of the last published pose.
+  common::Time lastPoseTime;
+
   /// \brief Map of bone names to their links.
   std::unordered_map<std::string, BoneLinks> boneLinks;
 

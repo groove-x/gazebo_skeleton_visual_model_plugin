@@ -55,6 +55,21 @@ void SkeletonModelVisual::Load(physics::ModelPtr _parent, sdf::ElementPtr _sdf)
 
   this->bonePosePub = this->node->Advertise<msgs::PoseAnimation>("~/skeleton_pose/info", 10);
 
+  // How often the skin pose actually goes out. The update event below fires
+  // every physics step, 1000 Hz at a 1 ms step, and that rate buys nothing
+  // visually: it costs the client a full re-skin of every bound mesh per
+  // message, and the queue above holds 10, so most of it is dropped on the
+  // floor regardless. Measured on the maru model with 15 bound meshes, one
+  // attached client took ~10 cores and 30% of real time with the robot
+  // standing still.
+  const double updateRate = _sdf->HasElement("update_rate")
+                                ? _sdf->Get<double>("update_rate")
+                                : 60.0;
+  this->posePeriod = updateRate > 0.0 ? common::Time(1.0 / updateRate)
+                                     : common::Time(0.0);
+  gzmsg << "SkeletonModelVisual: pose update rate "
+        << (updateRate > 0.0 ? updateRate : 0.0) << " Hz" << std::endl;
+
   // Listen to the update event. This event is broadcast every
   // simulation iteration.
   this->updateConnection = event::Events::ConnectWorldUpdateBegin(std::bind(&SkeletonModelVisual::OnUpdate, this));
@@ -64,6 +79,14 @@ void SkeletonModelVisual::Load(physics::ModelPtr _parent, sdf::ElementPtr _sdf)
 void SkeletonModelVisual::OnUpdate()
 {
   common::Time currentTime = this->world->SimTime();
+
+  // Rewound clock (world reset): publish and start the interval again.
+  if (currentTime < this->lastPoseTime)
+    this->lastPoseTime = common::Time(0.0);
+  else if (currentTime - this->lastPoseTime < this->posePeriod)
+    return;
+
+  this->lastPoseTime = currentTime;
   SetPose(currentTime.Double());
 }
 
