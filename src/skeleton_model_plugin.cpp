@@ -80,10 +80,9 @@ void SkeletonModelVisual::OnUpdate()
 {
   common::Time currentTime = this->world->SimTime();
 
-  // Rewound clock (world reset): publish and start the interval again.
-  if (currentTime < this->lastPoseTime)
-    this->lastPoseTime = common::Time(0.0);
-  else if (currentTime - this->lastPoseTime < this->posePeriod)
+  // A rewound clock (world reset) falls through and publishes, which starts
+  // the interval again from the new time.
+  if (currentTime >= this->lastPoseTime && currentTime - this->lastPoseTime < this->posePeriod)
     return;
 
   this->lastPoseTime = currentTime;
